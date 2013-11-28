@@ -1,0 +1,42 @@
+#!/bin/bash
+if [ -z $VIRTUAL_ENV ] ; then
+	echo ------------------------------------------------
+	echo  This script must be called withit a virtualenv
+	echo ------------------------------------------------
+	echo
+	exit
+fi
+
+BUILDFOLDER="appbuild"
+ENTRY='bendkbd'
+EXCLUDES="cython,test,pip,Finder"
+REMOVE_UNUSED_FILES=1
+OPENAPPFOLDER=1
+
+mkdir -p $BUILDFOLDER
+
+rm -f $BUILDFOLDER/setup.py
+
+for f in bendkbd assets; do
+	cp -r $f $BUILDFOLDER/
+done
+
+cp -f $ENTRY.py $BUILDFOLDER
+
+pushd $BUILDFOLDER
+py2applet --make-setup $ENTRY.py assets/$ENTRY.icns
+python setup.py py2app -e $EXCLUDES --resources assets
+popd
+
+if [ $REMOVE_UNUSED_FILES == 1 ]; then
+	echo "<< removing unused files >>"
+	rm -fr $BUILDFOLDER/dist/$ENTRY.app/Contents/Frameworks/Tcl.framework/Versions/8.5/Resources/English.lproj/ActiveTcl-8.5
+	rm -fr $BUILDFOLDER/dist/$ENTRY.app/Contents/Resources/lib/python2.7/lib-dynload/Cython
+	# rm -fr $BUILDFOLDER/dist/$ENTRY.app/Contents/Resources/lib/python2.7/lib-dynload/PySide
+fi
+
+echo "The app is at $BUILDFOLDER/dist/$ENTRY.app"
+
+if [ $OPENAPPFOLDER == 1 ]; then
+	open "$BUILDFOLDER/dist"
+fi
