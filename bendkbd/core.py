@@ -90,7 +90,7 @@ class Bendkbd(object):
         self._pitchoffset_cents = 0
 
         def pitchoffset(chan, cc, value):
-            self._pitchoffset_cents = value/127*99
+            self._pitchoffset_cents = value/127*100
             self.dispatch('pitchoffset', (self._pitchoffset_cents,))
 
         def pedal(chan, cc, value):
